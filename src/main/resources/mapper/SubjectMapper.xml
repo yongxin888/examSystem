@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.SubjectMapper">
+
+    <sql id="selectFields">
+        id, name, level, level_name, item_order, deleted
+    </sql>
+
+    <sql id="insertFields">
+        name, level, level_name, item_order, deleted
+    </sql>
+
+    <!--搜索所有学科-->
+    <select id="allSubject" resultType="com.examsystem.entity.Subject">
+        select
+        <include refid="selectFields"/>
+        from t_subject
+    </select>
+
+    <!--根据ID查询学科-->
+    <select id="selectById" resultType="com.examsystem.entity.Subject" parameterType="integer">
+        select
+        <include refid="selectFields" />
+        from t_subject
+        where id = #{id}
+    </select>
+
+    <!--根据条件查询学科-->
+    <select id="page" parameterType="com.examsystem.viewmodel.admin.education.SubjectPageRequestVM" resultType="com.examsystem.entity.Subject">
+        SELECT
+        <include refid="selectFields"/>
+        FROM t_subject
+        <where>
+            and deleted = 0
+            <if test="id != null ">
+                and id= #{id}
+            </if>
+            <if test="level != null ">
+                and level = #{level}
+            </if>
+        </where>
+    </select>
+
+    <!--添加学科-->
+    <insert id="insertSubject" parameterType="com.examsystem.entity.Subject">
+        insert into
+            t_subject(<include refid="insertFields"></include>)
+        values
+            (#{name}, #{level}, #{levelName}, #{itemOrder}, #{deleted})
+    </insert>
+
+    <!--添加学科-->
+    <update id="updateSubject" parameterType="com.examsystem.entity.Subject">
+        update t_subject
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="level != null">
+                level = #{level},
+            </if>
+            <if test="levelName != null">
+                level_name = #{levelName},
+            </if>
+            <if test="itemOrder != null">
+                item_order = #{itemOrder},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--根据学科以及年级查询-->
+    <select id="selectLevelAndName" resultType="int" parameterType="com.examsystem.entity.Subject">
+        SELECT
+        count(id)
+        FROM t_subject
+        <where>
+            and deleted = 0
+            <if test="name != null ">
+                and name = #{name}
+            </if>
+            <if test="level != null ">
+                and level = #{level}
+            </if>
+            <if test="levelName != null">
+                and level_name = #{levelName}
+            </if>
+        </where>
+    </select>
+</mapper>

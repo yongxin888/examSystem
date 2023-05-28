@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.UserMapper">
+
+    <sql id="selectFields">
+        id, user_uuid, user_name, password, real_name, age, sex, birth_day, user_level, phone,
+    role, status, image_path, create_time, modify_time, last_active_time, deleted, wx_open_id
+    </sql>
+
+    <sql id="insertFields">
+        user_uuid, user_name, password, real_name, age, sex, birth_day, user_level, phone,
+    role, status, create_time, last_active_time, deleted
+    </sql>
+
+    <!--根据条件查询用户-->
+    <select id="userPage" resultType="com.examsystem.entity.User">
+        SELECT
+        <include refid="selectFields"/>
+        FROM t_user
+        <where>
+            and deleted = 0
+            <if test="userName != null and userName != ''">
+                and user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="role != null ">
+                and role= #{role}
+            </if>
+        </where>
+    </select>
+
+    <!--根据用户名查询 limit 1 只要找到了一条对应的记录，就不会继续向下扫描了，效率会大大提高-->
+    <select id="getUserByUserName" resultType="com.examsystem.entity.User">
+        select
+        <include refid="selectFields"/>
+        from t_user
+        where deleted = 0  and user_name = #{username} limit 1
+    </select>
+
+    <!--新增用户-->
+    <insert id="insertUser" parameterType="com.examsystem.viewmodel.admin.user.UserCreateVM" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_user(<include refid="insertFields"></include>)
+        values
+            (#{userUuid}, #{userName}, #{password}, #{realName}, #{age}, #{sex},
+        #{birthDay}, #{userLevel}, #{phone}, #{role}, #{status}, #{createTime}, #{lastActiveTime}, #{deleted})
+    </insert>
+
+    <!--根据ID查询用户-->
+    <select id="getUserById" resultType="com.examsystem.entity.User">
+        select
+        <include refid="selectFields"/>
+        from t_user
+        where id = #{id}
+    </select>
+
+    <!--更新用户状态-->
+    <update id="updateByIdStatus" parameterType="com.examsystem.entity.User">
+        update t_user set status = #{status}, modify_time = #{modifyTime} where id = #{id}
+    </update>
+
+    <!--更新用户删除状态-->
+    <update id="deleteByIdUser" parameterType="com.examsystem.entity.User">
+        update t_user set deleted = #{deleted} where id = #{id}
+    </update>
+
+    <!--根据用户名模糊查询用户-->
+    <select id="selectByUserName" resultType="com.examsystem.entity.other.KeyValue">
+        SELECT  id as value,user_name as name
+        from t_user
+        where deleted=0  and user_name like concat('%',#{userName},'%')
+        limit 5
+    </select>
+
+    <select id="selectByIds" resultType="com.examsystem.entity.User">
+        select
+        <include refid="selectFields" />
+        from t_user
+        where id in
+        <foreach item="id" collection="list" open="(" separator=","
+                 close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

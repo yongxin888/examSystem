@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.QuestionMapper">
+
+    <sql id="selectFields">
+        id, question_type, subject_id, score, grade_level, difficult, correct, info_text_content_id,
+    create_user, status, create_time, deleted
+    </sql>
+
+    <sql id="insertFields">
+        question_type, subject_id, score, grade_level, difficult, correct, info_text_content_id,
+    create_user, status, create_time, deleted
+    </sql>
+
+    <!--查询题目总数-->
+    <select id="selectAllCount" resultType="int">
+        SELECT count(*) from t_question where deleted = 0
+    </select>
+
+    <!--根据条件查询题目-->
+    <select id="page" resultType="com.examsystem.entity.Question" parameterType="com.examsystem.viewmodel.admin.question.QuestionPageRequestVM">
+        SELECT
+        <include refid="selectFields"/>
+        FROM t_question
+        <where>
+            and deleted = 0
+            <if test="id != null ">
+                and id= #{id}
+            </if>
+            <if test="level != null ">
+                and grade_level= #{level}
+            </if>
+            <if test="subjectId != null ">
+                and subject_id= #{subjectId}
+            </if>
+            <if test="questionType != null ">
+                and question_type= #{questionType}
+            </if>
+            <if test="content != null">
+                and info_text_content_id in (SELECT id FROM t_text_content WHERE content like concat('%',#{content},'%') )
+            </if>
+        </where>
+    </select>
+
+    <!--根据ID查询题目信息-->
+    <select id="selectQuestionById" resultType="com.examsystem.entity.Question" parameterType="integer">
+        select
+        <include refid="selectFields" />
+        from t_question
+        where id = #{id}
+    </select>
+
+    <!--根据多条ID查询多条题目信息-->
+    <select id="selectByIds" resultType="com.examsystem.entity.Question">
+        SELECT
+        <include refid="selectFields"/>
+        FROM t_question where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--新增题目信息-->
+    <insert id="insertQuestion" parameterType="com.examsystem.entity.Question">
+        insert into
+            t_question(<include refid="insertFields"></include>)
+        values
+            (#{questionType}, #{subjectId}, #{score}, #{gradeLevel}, #{difficult}, #{correct},
+        #{infoTextContentId}, #{createUser}, #{status}, #{createTime}, #{deleted})
+    </insert>
+
+    <!--更新题目信息-->
+    <update id="updateQuestion" parameterType="com.examsystem.entity.Question">
+        update t_question
+        <set>
+            <if test="questionType != null">
+                question_type = #{questionType},
+            </if>
+            <if test="subjectId != null">
+                subject_id = #{subjectId},
+            </if>
+            <if test="score != null">
+                score = #{score},
+            </if>
+            <if test="gradeLevel != null">
+                grade_level = #{gradeLevel},
+            </if>
+            <if test="difficult != null">
+                difficult = #{difficult},
+            </if>
+            <if test="correct != null">
+                correct = #{correct},
+            </if>
+            <if test="infoTextContentId != null">
+                info_text_content_id = #{infoTextContentId},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

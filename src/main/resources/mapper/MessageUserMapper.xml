@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.MessageUserMapper">
+
+    <sql id="selectFields">
+        id, message_id, receive_user_id, receive_user_name, receive_real_name, readed, create_time,
+    read_time
+    </sql>
+
+    <sql id="insertFields">
+        message_id, receive_user_id, receive_user_name, receive_real_name, readed, create_time
+    </sql>
+
+    <!--根据消息ID查询用户信息-->
+    <select id="selectByMessageIds" resultType="com.examsystem.entity.MessageUser" parameterType="integer">
+        select
+        <include refid="selectFields" />
+        from t_message_user
+        where message_id in
+        <foreach item="id" collection="list" open="(" separator=","  close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--批量新增用户消息-->
+    <insert id="insertMessageUsers" parameterType="com.examsystem.entity.MessageUser">
+        insert into
+            t_message_user (<include refid="insertFields"></include>)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.messageId}, #{item.receiveUserId}, #{item.receiveUserName}, #{item.receiveRealName}, #{item.readed},#{item.createTime})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.TaskExamMapper">
+
+    <sql id="selectFields">
+        id, title, grade_level, frame_text_content_id, create_user, create_time, deleted,
+    create_user_name
+    </sql>
+
+    <sql id="insertFields">
+        title, grade_level, frame_text_content_id, create_user, create_time, deleted,
+    create_user_name
+    </sql>
+
+    <!--根据条件查询任务列表-->
+    <select id="page" resultType="com.examsystem.entity.TaskExam" parameterType="com.examsystem.viewmodel.admin.task.TaskPageRequestVM">
+        select
+        <include refid="selectFields" />
+        from t_task_exam
+        <where>
+            and deleted = 0
+            <if test="gradeLevel != null">
+                and grade_level = #{gradeLevel}
+            </if>
+        </where>
+    </select>
+
+    <!--添加任务-->
+    <insert id="insertTaskExam" parameterType="com.examsystem.entity.TaskExam">
+        insert into
+            t_task_exam(<include refid="insertFields"></include>)
+        values
+            (#{title}, #{gradeLevel}, #{frameTextContentId}, #{createUser}, #{createTime}, #{deleted}, #{createUserName})
+    </insert>
+
+    <!--根据ID查询任务-->
+    <select id="selectTaskExamById" resultType="com.examsystem.entity.TaskExam" parameterType="integer">
+        select
+        <include refid="selectFields" />
+        from t_task_exam
+        where id = #{id}
+    </select>
+
+    <!--根据ID更新任务-->
+    <update id="updateTaskExamById" parameterType="com.examsystem.entity.TaskExam">
+        update t_task_exam
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="gradeLevel != null">
+                grade_level = #{gradeLevel},
+            </if>
+            <if test="frameTextContentId != null">
+                frame_text_content_id = #{frameTextContentId},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="createUserName != null">
+                create_user_name = #{createUserName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

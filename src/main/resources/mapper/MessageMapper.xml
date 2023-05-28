@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.MessageMapper">
+
+    <sql id="selectFields">
+        id, title, content, create_time, send_user_id, send_user_name, send_real_name, receive_user_count,
+    read_count
+    </sql>
+
+    <sql id="insertFields">
+        title, content, create_time, send_user_id, send_user_name, send_real_name, receive_user_count,
+    read_count
+    </sql>
+
+    <!--根据条件查询数据-->
+    <select id="page" resultType="com.examsystem.entity.Message" parameterType="com.examsystem.viewmodel.admin.message.MessagePageRequestVM">
+        select
+        <include refid="selectFields" />
+        from t_message
+        <where>
+            <if test="sendUserName != null">
+                and send_user_name  like concat('%',#{sendUserName},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--新增消息-->
+    <insert id="insertMessage" parameterType="com.examsystem.entity.Message" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_message(<include refid="insertFields"></include>)
+        values
+            (#{title}, #{content}, #{createTime}, #{sendUserId}, #{sendUserName}, #{sendRealName}, #{receiveUserCount}, #{readCount})
+    </insert>
+</mapper>

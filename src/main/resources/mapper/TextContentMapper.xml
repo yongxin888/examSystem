@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.TextContentMapper">
+
+    <sql id="selectFields">
+        id, content, create_time
+    </sql>
+
+    <!--根据ID查询文本信息-->
+    <select id="selectById" parameterType="integer" resultType="com.examsystem.entity.TextContent">
+        select
+        <include refid="selectFields" />
+        from t_text_content
+        where id = #{id}
+    </select>
+
+    <!--新增试卷题目信息-->
+    <insert id="insertTextContent" parameterType="com.examsystem.entity.TextContent" useGeneratedKeys="true" keyProperty="id">
+        insert into t_text_content(content, create_time) values(#{content}, #{createTime})
+    </insert>
+
+    <!--根据ID更新文本-->
+    <update id="updateTextContentById" parameterType="com.examsystem.entity.TextContent">
+        update t_text_content
+        <set>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

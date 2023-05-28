@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.ExamPaperMapper">
+
+    <sql id="selectFields">
+        id, name, subject_id, paper_type, grade_level, score, question_count, suggest_time,
+    limit_start_time, limit_end_time, frame_text_content_id, create_user, create_time,
+    deleted, task_exam_id
+    </sql>
+
+    <sql id="insertFields">
+        name, subject_id, paper_type, grade_level, score, question_count, suggest_time,
+    limit_start_time, limit_end_time, frame_text_content_id, create_user, create_time,
+    deleted, task_exam_id
+    </sql>
+
+    <!--查询试卷总数-->
+    <select id="selectAllCount" resultType="int">
+        SELECT count(*) from t_exam_paper where deleted = 0
+    </select>
+
+    <!--根据条件查询试卷列表-->
+    <select id="page" resultType="com.examsystem.entity.ExamPaper">
+        SELECT
+        <include refid="selectFields"/>
+        FROM t_exam_paper
+        <where>
+            and deleted = 0
+            <if test="id != null ">
+                and id= #{id}
+            </if>
+            <if test="level != null ">
+                and grade_level= #{level}
+            </if>
+            <if test="subjectId != null ">
+                and subject_id= #{subjectId}
+            </if>
+            <if test="paperType != null ">
+                and paper_type= #{paperType}
+            </if>
+        </where>
+    </select>
+
+    <!--添加试卷-->
+    <insert id="insertExamPaper" parameterType="com.examsystem.entity.ExamPaper" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_exam_paper(<include refid="insertFields"></include>)
+        values (
+           #{name},#{subjectId},#{paperType},#{gradeLevel},#{score},#{questionCount},#{suggestTime},#{limitStartTime},
+        #{limitEndTime},#{frameTextContentId},#{createUser},#{createTime},#{deleted},#{taskExamId}
+        )
+    </insert>
+
+    <!--根据ID查询试卷-->
+    <select id="selectExamPaperById" resultType="com.examsystem.entity.ExamPaper" parameterType="integer">
+        select
+        <include refid="selectFields"/>
+        from t_exam_paper
+        where id = #{id}
+    </select>
+
+    <!--根据ID更新试卷表-->
+    <update id="updateExamPaperById" parameterType="com.examsystem.entity.ExamPaper">
+        update t_exam_paper
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="subjectId != null">
+                subject_id = #{subjectId},
+            </if>
+            <if test="paperType != null">
+                paper_type = #{paperType},
+            </if>
+            <if test="gradeLevel != null">
+                grade_level = #{gradeLevel},
+            </if>
+            <if test="score != null">
+                score = #{score},
+            </if>
+            <if test="questionCount != null">
+                question_count = #{questionCount},
+            </if>
+            <if test="suggestTime != null">
+                suggest_time = #{suggestTime},
+            </if>
+            <if test="limitStartTime != null">
+                limit_start_time = #{limitStartTime},
+            </if>
+            <if test="limitEndTime != null">
+                limit_end_time = #{limitEndTime},
+            </if>
+            <if test="frameTextContentId != null">
+                frame_text_content_id = #{frameTextContentId},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="taskExamId != null">
+                task_exam_id = #{taskExamId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--任务管理根据条件查询试卷-->
+    <select id="taskExamPage" resultType="com.examsystem.entity.ExamPaper" parameterType="com.examsystem.viewmodel.admin.exam.ExamPaperPageRequestVM">
+        SELECT
+        <include refid="selectFields"/>
+        FROM t_exam_paper
+        <where>
+            and deleted = 0
+            and task_exam_id is null
+            and grade_level = #{level}
+            and paper_type = #{paperType}
+        </where>
+    </select>
+
+    <!--更新试卷任务ID-->
+    <update id="updateTaskPaper">
+        update t_exam_paper set task_exam_id = #{taskId} where id in
+        <foreach item="id" collection="paperIds" open="(" separator=","
+                 close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--清空试卷的任务ID-->
+    <update id="clearTaskPaper">
+        update t_exam_paper set task_exam_id = null where id in
+        <foreach item="id" collection="paperIds" open="(" separator=","
+                 close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

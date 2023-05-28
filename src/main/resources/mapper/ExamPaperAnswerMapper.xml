@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.examsystem.mapper.ExamPaperAnswerMapper">
+
+    <sql id="selectFields">
+        id, exam_paper_id, paper_name, paper_type, subject_id, system_score, user_score,
+    paper_score, question_correct, question_count, do_time, status, create_user, create_time,
+    task_exam_id
+    </sql>
+
+    <!--查询答卷总数-->
+    <select id="selectAllCount" resultType="int">
+        SELECT count(*) from t_exam_paper_answer
+    </select>
+
+    <!--分页查询列表数据-->
+    <select id="page" resultType="com.examsystem.entity.ExamPaperAnswer" parameterType="com.examsystem.viewmodel.admin.answer.ExamPaperAnswerPageRequestVM">
+        SELECT
+        <include refid="selectFields"/>
+        FROM t_exam_paper_answer
+        <where>
+            <if test="subjectId != null">
+                and subject_id = #{subjectId}
+            </if>
+        </where>
+    </select>
+</mapper>
